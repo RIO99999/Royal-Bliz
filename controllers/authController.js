@@ -3,7 +3,7 @@ const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 const sendEmail = require('../utils/sendEmail');
 const { uploadImage, destroyImage } = require('../utils/cloudinaryUpload');
-const { primaryOrigin } = require('../utils/clientOrigin');
+const frontendUrl = require('../utils/frontendUrl');
 const {
   isNameValid,
   isPasswordValid,
@@ -147,7 +147,7 @@ const forgotPassword = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 30 * 60 * 1000; // 30 minutes
     await user.save();
 
-    const resetUrl = `${primaryOrigin}/reset-password/${resetToken}`;
+    const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
 
     sendEmail({
       to: user.email,

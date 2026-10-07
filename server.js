@@ -2,23 +2,7 @@ require('dotenv').config();
 const connectDB = require('./config/db');
 const createServer = require('./createServer');
 
-// Local / traditional-host entry point. The Vercel function uses api/index.js,
-// which connects per request instead of opening a listener.
-
-const express = require('express');
-const cors = require('cors');
-const app = express();
-
-// Allow requests specifically from your Vercel frontend origin
-app.use(cors({
-  origin: 'https://royal-blizz-ttoy.vercel.app',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true // Enable this if you are using cookies/sessions
-}));
-
-
-
-
+// Runs the server on your own machine (npm run dev / npm start).
 connectDB()
   .then(() => {
     const app = createServer();
