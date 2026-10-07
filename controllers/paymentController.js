@@ -46,7 +46,7 @@ const finalizePaidOrder = async (order, paymentMethod) => {
 
   // Email the receipt/download link once (on the transition to paid).
   if (!wasAlreadyPaid) {
-    const receiptLink = `${frontendUrl}/buyer/orders/${order._id}`;
+    const receiptLink = `${frontendUrl(order.origin)}/buyer/orders/${order._id}`;
     sendEmail({
       to: order.shippingAddress.email,
       subject: `Payment received — ${order.orderNumber}`,
@@ -111,7 +111,7 @@ const initializePayment = async (req, res) => {
         amount: Math.round(order.totalAmount * 100), // kobo
         currency: 'NGN',
         reference,
-        callback_url: `${frontendUrl}/payment/verify?reference=${reference}`,
+        callback_url: `${frontendUrl(req.headers.origin)}/payment/verify?reference=${reference}`,
         metadata: { orderId: order._id.toString() },
       }),
     });

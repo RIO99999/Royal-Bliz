@@ -61,6 +61,7 @@ const createOrder = async (req, res) => {
       items: orderItems,
       totalAmount,
       shippingAddress,
+      origin: req.headers.origin || '',
       paymentStatus: 'pending',
       orderStatus: 'processing',
       orderNumber: generateOrderNumber(),

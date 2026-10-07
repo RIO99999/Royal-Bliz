@@ -46,6 +46,8 @@ const orderSchema = new mongoose.Schema(
       default: 'processing',
     },
     orderNumber: { type: String, required: true, unique: true },
+    // The frontend origin the buyer was on, used to build correct receipt links.
+    origin: { type: String, default: '' },
     receiptNumber: { type: String, default: '' },
     receiptUrl: { type: String, default: '' },
     receiptPublicId: { type: String, default: '' },
