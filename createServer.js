@@ -11,7 +11,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
 
 const { notFound, errorHandler } = require('./middleware/errorHandler');
-const { allowedOrigins, isAllowedOrigin } = require('./utils/clientOrigin');
+const { allowedOrigins, isAllowedOrigin, describeConfigProblems } = require('./utils/clientOrigin');
 
 // Builds the Express app. Kept free of any DB connection or listener so the
 // same app can be served by server.js locally and by a serverless function
@@ -56,7 +56,11 @@ const createServer = () => {
 };
 
 // Surface the allowed origins in the logs so a misconfigured CLIENT_URL is
-// obvious on the very first request after a deploy.
+// obvious on the very first request after a deploy. A wrong value here shows up
+// in the browser only as an opaque "blocked by CORS policy" error.
 console.log(`CORS allowed origins: ${allowedOrigins.join(', ')}`);
+describeConfigProblems().forEach((problem) => {
+  console.warn(`[CORS CONFIG WARNING] ${problem}`);
+});
 
 module.exports = createServer;
