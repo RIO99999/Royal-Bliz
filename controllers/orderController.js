@@ -5,7 +5,7 @@ const { getSignedRawUrl } = require('../utils/cloudinaryUpload');
 const { generateReceipt } = require('../utils/receipt');
 const { isPhoneValid, PHONE_HINT } = require('../utils/validators');
 
-// Create a human-friendly order number.
+
 const generateOrderNumber = () => {
   return `RB-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
 };
@@ -13,7 +13,7 @@ const generateOrderNumber = () => {
 const naira = (amount) =>
   'NGN ' + Number(amount || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 });
 
-// POST /api/orders  (protected - buyer)
+
 const createOrder = async (req, res) => {
   try {
     const { items, shippingAddress } = req.body;
@@ -51,7 +51,7 @@ const createOrder = async (req, res) => {
       });
       totalAmount += product.price * quantity;
 
-      // Reduce stock for this demo flow.
+    
       product.stock -= quantity;
       await product.save();
     }
@@ -68,7 +68,7 @@ const createOrder = async (req, res) => {
       statusHistory: [{ status: 'processing', at: new Date() }],
     });
 
-    // Order confirmation email.
+
     const itemsHtml = orderItems
       .map((i) => `<li>${i.name} x ${i.quantity} — ${naira(i.price * i.quantity)}</li>`)
       .join('');
@@ -96,7 +96,7 @@ const createOrder = async (req, res) => {
   }
 };
 
-// GET /api/orders  (protected)
+
 const getOrders = async (req, res) => {
   try {
     let orders;
@@ -104,7 +104,7 @@ const getOrders = async (req, res) => {
     if (req.user.role === 'admin') {
       orders = await Order.find().populate('buyer', 'fullName email').sort({ createdAt: -1 });
     } else if (req.user.role === 'vendor') {
-      // Orders that contain at least one of this vendor's products.
+   
       const productIds = (await Product.find({ vendor: req.user._id }).select('_id')).map((p) => p._id);
       orders = await Order.find({ 'items.product': { $in: productIds } })
         .populate('buyer', 'fullName email')
@@ -119,7 +119,7 @@ const getOrders = async (req, res) => {
   }
 };
 
-// GET /api/orders/:id  (protected)
+
 const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id).populate('buyer', 'fullName email');
@@ -134,7 +134,7 @@ const getOrderById = async (req, res) => {
       return res.json(order);
     }
 
-    // Vendor can view an order if it contains their products.
+ 
     if (req.user.role === 'vendor') {
       const productIds = (await Product.find({ vendor: req.user._id }).select('_id')).map((p) => p._id.toString());
       const hasProduct = order.items.some((i) => productIds.includes(i.product.toString()));
@@ -149,7 +149,7 @@ const getOrderById = async (req, res) => {
   }
 };
 
-// PUT /api/orders/:id/status  (vendor own products, or admin)
+
 const updateOrderStatus = async (req, res) => {
   try {
     const { orderStatus, trackingNumber } = req.body;
@@ -183,7 +183,7 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-// GET /api/orders/:id/receipt  (protected - buyer own, or admin)
+
 const getReceipt = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
@@ -212,9 +212,7 @@ const getReceipt = async (req, res) => {
   }
 };
 
-// GET /api/orders/:id/receipt/download  (protected - buyer own, or admin)
-// Streams a freshly generated PDF so the download never depends on Cloudinary
-// raw delivery / signed-URL ACL rules.
+
 const getReceiptDownload = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);

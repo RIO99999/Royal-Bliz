@@ -5,7 +5,7 @@ const { generateReceipt, generateReceiptNumber } = require('../utils/receipt');
 const { uploadRaw, getSignedRawUrl } = require('../utils/cloudinaryUpload');
 const frontendUrl = require('../utils/frontendUrl');
 
-// Convert Paystack channel codes into friendly names for the receipt.
+
 const friendlyChannel = (channel) => {
   const map = {
     card: 'Card',
@@ -18,8 +18,7 @@ const friendlyChannel = (channel) => {
   return map[channel] || 'Paystack';
 };
 
-// Mark an order as paid, generate the receipt (once), and email the buyer.
-// This is safe to call multiple times: it never creates duplicate receipts.
+
 const finalizePaidOrder = async (order, paymentMethod) => {
   const wasAlreadyPaid = order.paymentStatus === 'paid';
 
@@ -29,7 +28,7 @@ const finalizePaidOrder = async (order, paymentMethod) => {
     await order.save();
   }
 
-  // Generate the receipt only if it does not already exist.
+  
   if (!order.receiptUrl) {
     try {
       order.receiptNumber = await generateReceiptNumber();
@@ -39,12 +38,12 @@ const finalizePaidOrder = async (order, paymentMethod) => {
       order.receiptPublicId = uploaded.publicId;
       await order.save();
     } catch (error) {
-      // Payment stays PAID; receipt generation can be retried later.
+   
       console.error('Receipt generation failed:', error.message);
     }
   }
 
-  // Email the receipt/download link once (on the transition to paid).
+  
   if (!wasAlreadyPaid) {
     const receiptLink = `${frontendUrl(order.origin)}/buyer/orders/${order._id}`;
     sendEmail({
@@ -77,7 +76,7 @@ const orderSummary = (order) => ({
   createdAt: order.createdAt,
 });
 
-// POST /api/payments/initialize  (protected - buyer)
+
 const initializePayment = async (req, res) => {
   try {
     const { orderId } = req.body;
@@ -131,7 +130,7 @@ const initializePayment = async (req, res) => {
   }
 };
 
-// GET /api/payments/verify/:reference  (protected)
+
 const verifyPayment = async (req, res) => {
   try {
     const { reference } = req.params;
@@ -145,7 +144,7 @@ const verifyPayment = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    // Idempotent: already paid -> return success and ensure receipt exists.
+    
     if (order.paymentStatus === 'paid') {
       await finalizePaidOrder(order, 'Paystack');
       return res.json({ status: true, message: 'Payment already verified', order: orderSummary(order) });
@@ -162,7 +161,7 @@ const verifyPayment = async (req, res) => {
       return res.json({ status: false, message: 'Payment was not successful' });
     }
 
-    // Verify reference amount and currency server-side. Never trust the client.
+   
     const expectedAmount = Math.round(order.totalAmount * 100);
     if (data.data.amount !== expectedAmount || data.data.currency !== 'NGN') {
       order.paymentStatus = 'failed';
@@ -178,7 +177,7 @@ const verifyPayment = async (req, res) => {
   }
 };
 
-// POST /api/payments/webhook  (no auth - secured by HMAC signature)
+
 const webhook = async (req, res) => {
   try {
     const signature = req.headers['x-paystack-signature'];
@@ -202,7 +201,7 @@ const webhook = async (req, res) => {
         return res.sendStatus(200);
       }
 
-      // Idempotent: already paid, nothing to do.
+      
       if (order.paymentStatus === 'paid') {
         return res.sendStatus(200);
       }

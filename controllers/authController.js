@@ -13,7 +13,7 @@ const {
   PHONE_HINT,
 } = require('../utils/validators');
 
-// Return a user object without the password.
+
 const sanitizeUser = (user) => {
   const obj = user.toObject();
   delete obj.password;
@@ -22,7 +22,7 @@ const sanitizeUser = (user) => {
   return obj;
 };
 
-// POST /api/auth/register  (multipart: optional "profilePicture" file)
+
 const register = async (req, res) => {
   try {
     const { fullName, email, password, confirmPassword, role } = req.body;
@@ -40,7 +40,7 @@ const register = async (req, res) => {
       return res.status(400).json({ message: PASSWORD_HINT });
     }
 
-    // Only Buyer or Vendor can be chosen. Admin is never created from signup.
+    
     const allowedRole = role === 'vendor' ? 'vendor' : 'buyer';
 
     const existing = await User.findOne({ email: email.toLowerCase() });
@@ -67,7 +67,7 @@ const register = async (req, res) => {
       storeName: allowedRole === 'vendor' ? fullName + "'s Store" : '',
     });
 
-    // Welcome email (non-blocking).
+    
     sendEmail({
       to: user.email,
       subject: 'Welcome to ROYAL BLIZ',
@@ -88,7 +88,7 @@ const register = async (req, res) => {
       user: sanitizeUser(user),
     });
   } catch (error) {
-    // Handle duplicate key race gracefully.
+   
     if (error.code === 11000) {
       return res.status(400).json({ message: 'This email is already registered' });
     }
@@ -96,7 +96,7 @@ const register = async (req, res) => {
   }
 };
 
-// POST /api/auth/login
+
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -119,7 +119,7 @@ const login = async (req, res) => {
       return res.status(403).json({ message: 'Your account has been deactivated. Contact support.' });
     }
 
-    // Role is read from the database here and sent to the client for routing.
+
     res.json({
       token: generateToken(user._id),
       user: sanitizeUser(user),
@@ -129,11 +129,11 @@ const login = async (req, res) => {
   }
 };
 
-// POST /api/auth/forgot-password
+
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
-  // Always return the same message so we don't reveal whether an email exists.
+  
   const generic = { message: 'If that email exists, a reset link has been sent' };
 
   try {
@@ -144,7 +144,7 @@ const forgotPassword = async (req, res) => {
 
     const resetToken = crypto.randomBytes(32).toString('hex');
     user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-    user.resetPasswordExpires = Date.now() + 30 * 60 * 1000; // 30 minutes
+    user.resetPasswordExpires = Date.now() + 30 * 60 * 1000;
     await user.save();
 
     const resetUrl = `${frontendUrl(req.headers.origin)}/reset-password/${resetToken}`;
@@ -174,7 +174,7 @@ const forgotPassword = async (req, res) => {
   }
 };
 
-// POST /api/auth/reset-password/:token
+
 const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
@@ -211,12 +211,12 @@ const resetPassword = async (req, res) => {
   }
 };
 
-// GET /api/auth/me  (protected)
+
 const getMe = async (req, res) => {
   res.json({ user: sanitizeUser(req.user) });
 };
 
-// PUT /api/auth/profile  (protected)
+
 const updateProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
@@ -248,7 +248,7 @@ const updateProfile = async (req, res) => {
   }
 };
 
-// PUT /api/auth/profile-picture  (protected, multipart "profilePicture")
+
 const updateProfilePicture = async (req, res) => {
   try {
     if (!req.file) {
@@ -257,7 +257,7 @@ const updateProfilePicture = async (req, res) => {
 
     const user = await User.findById(req.user._id);
 
-    // Remove the old asset first.
+    
     if (user.profilePicturePublicId) {
       await destroyImage(user.profilePicturePublicId);
     }

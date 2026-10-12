@@ -2,7 +2,7 @@ const Product = require('../models/Product');
 const User = require('../models/User');
 const { uploadImage, destroyImage } = require('../utils/cloudinaryUpload');
 
-// GET /api/products  (public, with search/filter/sort)
+
 const getProducts = async (req, res) => {
   try {
     const { search, category, minPrice, maxPrice, sort, vendor } = req.query;
@@ -10,7 +10,7 @@ const getProducts = async (req, res) => {
     const query = {};
 
     if (search) {
-      // Match the product name OR the vendor's store name / full name.
+      
       const matchingVendors = await User.find({
         role: 'vendor',
         $or: [
@@ -51,7 +51,7 @@ const getProducts = async (req, res) => {
   }
 };
 
-// GET /api/products/:id  (public)
+
 const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).populate('vendor', 'fullName storeName rating ratingCount');
@@ -64,7 +64,7 @@ const getProductById = async (req, res) => {
   }
 };
 
-// GET /api/products/vendors  (public - list active vendors for filtering)
+
 const getVendors = async (req, res) => {
   try {
     const vendors = await User.find({ role: 'vendor', isActive: true })
@@ -76,7 +76,7 @@ const getVendors = async (req, res) => {
   }
 };
 
-// POST /api/products  (vendor only, multipart "image")
+
 const createProduct = async (req, res) => {
   try {
     const { name, description, price, category, stock } = req.body;
@@ -90,7 +90,7 @@ const createProduct = async (req, res) => {
 
     const uploaded = await uploadImage(req.file.buffer, 'royal-bliz/products');
 
-    // Rating is derived from buyer reviews, never set by the vendor.
+    
     const product = await Product.create({
       name,
       description,
@@ -108,7 +108,7 @@ const createProduct = async (req, res) => {
   }
 };
 
-// PUT /api/products/:id  (vendor, own product only)
+
 const updateProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -116,7 +116,7 @@ const updateProduct = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    // Vendors can only modify their own products.
+   
     if (product.vendor.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'You can only edit your own products' });
     }
@@ -128,9 +128,9 @@ const updateProduct = async (req, res) => {
     if (price !== undefined) product.price = Number(price);
     if (category !== undefined) product.category = category;
     if (stock !== undefined) product.stock = Number(stock);
-    // Rating is derived from buyer reviews; the vendor cannot set it.
+   
 
-    // If a new image is provided, replace it and delete the old asset.
+    
     if (req.file) {
       const uploaded = await uploadImage(req.file.buffer, 'royal-bliz/products');
       if (product.cloudinaryPublicId) {
@@ -147,7 +147,7 @@ const updateProduct = async (req, res) => {
   }
 };
 
-// DELETE /api/products/:id  (vendor own product, or admin any product)
+
 const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -162,7 +162,7 @@ const deleteProduct = async (req, res) => {
       return res.status(403).json({ message: 'You can only delete your own products' });
     }
 
-    // Remove the image asset from Cloudinary.
+    
     if (product.cloudinaryPublicId) {
       await destroyImage(product.cloudinaryPublicId);
     }

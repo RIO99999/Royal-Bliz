@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const Product = require('../models/Product');
 
-// GET /api/wishlist  (protected - buyer)
+
 const getWishlist = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).populate('wishlist');
@@ -11,7 +11,7 @@ const getWishlist = async (req, res) => {
   }
 };
 
-// POST /api/wishlist/:productId  (protected - buyer)
+
 const addToWishlist = async (req, res) => {
   try {
     const product = await Product.findById(req.params.productId);
@@ -31,7 +31,7 @@ const addToWishlist = async (req, res) => {
   }
 };
 
-// DELETE /api/wishlist/:productId  (protected - buyer)
+
 const removeFromWishlist = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);

@@ -2,7 +2,7 @@ const User = require('../models/User');
 const Product = require('../models/Product');
 const Order = require('../models/Order');
 
-// GET /api/admin/dashboard  (admin only)
+
 const getDashboard = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments({ role: 'buyer' });
@@ -37,7 +37,7 @@ const getDashboard = async (req, res) => {
   }
 };
 
-// GET /api/admin/users  (admin only - buyers)
+
 const getUsers = async (req, res) => {
   try {
     const users = await User.find({ role: 'buyer' }).select('-password').sort({ createdAt: -1 });
@@ -47,7 +47,7 @@ const getUsers = async (req, res) => {
   }
 };
 
-// GET /api/admin/vendors  (admin only)
+
 const getVendors = async (req, res) => {
   try {
     const vendors = await User.find({ role: 'vendor' }).select('-password').sort({ createdAt: -1 });
@@ -65,7 +65,7 @@ const getVendors = async (req, res) => {
   }
 };
 
-// GET /api/admin/products  (admin only)
+
 const getProducts = async (req, res) => {
   try {
     const products = await Product.find().populate('vendor', 'fullName storeName').sort({ createdAt: -1 });
@@ -75,7 +75,7 @@ const getProducts = async (req, res) => {
   }
 };
 
-// GET /api/admin/orders  (admin only)
+
 const getOrders = async (req, res) => {
   try {
     const orders = await Order.find().populate('buyer', 'fullName email').sort({ createdAt: -1 });
@@ -85,7 +85,7 @@ const getOrders = async (req, res) => {
   }
 };
 
-// PATCH /api/admin/vendors/:id/status  (admin only - deactivate/activate)
+
 const updateVendorStatus = async (req, res) => {
   try {
     const vendor = await User.findById(req.params.id);

@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
-// A snapshot of a product inside an order, so it keeps its
-// name/price even if the product later changes.
+
 const orderItemSchema = new mongoose.Schema(
   {
     product: {
@@ -46,15 +45,15 @@ const orderSchema = new mongoose.Schema(
       default: 'processing',
     },
     orderNumber: { type: String, required: true, unique: true },
-    // The frontend origin the buyer was on, used to build correct receipt links.
+    
     origin: { type: String, default: '' },
     receiptNumber: { type: String, default: '' },
     receiptUrl: { type: String, default: '' },
     receiptPublicId: { type: String, default: '' },
     paidAt: { type: Date },
-    // Carrier tracking number, filled in by the vendor when shipping.
+   
     trackingNumber: { type: String, default: '' },
-    // Timeline of status changes used for order tracking.
+    
     statusHistory: [
       {
         status: {
