@@ -21,7 +21,7 @@ const seedAdmin = async () => {
 
     if (admin) {
       admin.fullName = ADMIN_NAME || 'Royal Bliz Admin';
-      admin.password = ADMIN_PASSWORD; // will be hashed by the pre-save hook
+      admin.password = ADMIN_PASSWORD; 
       admin.role = 'admin';
       await admin.save();
       console.log('Admin already exists — password and details updated.');
